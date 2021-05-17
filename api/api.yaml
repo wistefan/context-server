@@ -51,19 +51,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ContextList'
-        '400':
-          description: Bad request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProblemDetails'
-        '404':
-          description: No context exists in the server.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProblemDetails'
-
   '/jsonldContexts/{contextId}':
     get:
       tags:

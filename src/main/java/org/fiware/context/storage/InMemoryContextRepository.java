@@ -19,7 +19,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class InMemoryContextRepository implements ContextRepository {
 
-	private final Map<String, Object> contextMap = new HashMap<>();
+	private final ContextMap contextMap;
 
 	@Override
 	public Optional<String> createContext(Object ldContext) {

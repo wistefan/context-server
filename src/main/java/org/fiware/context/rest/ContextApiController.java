@@ -1,6 +1,5 @@
 package org.fiware.context.rest;
 
-import com.apicatalog.jsonld.JsonLd;
 import com.apicatalog.jsonld.JsonLdError;
 import com.apicatalog.jsonld.document.JsonDocument;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -65,10 +64,10 @@ public class ContextApiController implements ContextServerApi {
 	}
 
 	@Override
-	public Optional<ContextListVO> getContextList() {
+	public ContextListVO getContextList() {
 		ContextListVO contextListVO = new ContextListVO();
 		contextRepository.getContextList().stream().map(this::getContextURI).forEach(contextListVO::add);
-		return Optional.of(contextListVO);
+		return contextListVO;
 	}
 
 	@Override
