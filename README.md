@@ -3,6 +3,8 @@
 The Context Server provides capabilities to serve and manage [NGSI-LD Contexts](https://www.etsi.org/deliver/etsi_gs/CIM/001_099/009/01.04.01_60/gs_cim009v010401p.pdf).
 It provides multiple options for storage backends to allow environmental flexibility.     
 
+The current api can be viewed here: [Swagger-UI](https://forge.etsi.org/swagger/ui/?url=https://raw.githubusercontent.com/wistefan/context-server/master/api/api.yaml)
+
 ## Configuration
 
 The only general required configuration is the ```general.baseUrl```. It should be set to the url that ContextServer is available at, in order to be able 
