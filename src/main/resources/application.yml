@@ -1,0 +1,37 @@
+micronaut:
+  application:
+    name: ${project.artifactId}
+
+  metrics:
+    enabled: true
+    export:
+      prometheus:
+        step: PT2s
+        descriptions: false
+
+---
+endpoints:
+  metrics:
+    enabled: true
+  health:
+    enabled: true
+
+loggers:
+  levels:
+    ROOT: INFO
+
+---
+general:
+  baseUrl: http://localhost:8080
+
+gcs:
+  enabled: false
+
+memory:
+  enabled: true
+
+ftp:
+  enabled: false
+
+local:
+  enabled: false
