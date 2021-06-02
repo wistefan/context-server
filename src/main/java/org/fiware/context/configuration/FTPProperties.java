@@ -11,7 +11,7 @@ public class FTPProperties {
 
 	private boolean enabled = false;
 	private String hostname;
-	private int port = 21;
+	private int port = 21000;
 	private String contextFolder = "/my-contexts";
 	private boolean secured = false;
 	private String username = "user";

@@ -1,0 +1,3 @@
+gcs:
+  enabled: true
+  bucketName: local-bucket

@@ -15,7 +15,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.fiware.context.configuration.GCSProperties;
 import org.fiware.context.exception.CouldNotCreateContextException;
 import org.fiware.context.exception.FileNotReadableException;
+import org.fiware.context.exception.GCSAccessException;
+import org.fiware.context.exception.NoSuchContextException;
 import org.fiware.context.exception.RepositoryCreationException;
+import org.fiware.context.exception.ContextAlreadyExistsException;
 
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;
@@ -34,10 +37,10 @@ public class GCSContextRepository implements ContextRepository {
 
 	private final ObjectMapper objectMapper;
 	private final GCSProperties gcsProperties;
-	private final Storage storage = StorageOptions.getDefaultInstance().getService();
+	private final Storage storage;
 
 	@PostConstruct
-	public void init() throws RepositoryCreationException{
+	public void init() throws RepositoryCreationException {
 		try {
 			// list the context to check bucket is accessible
 			getContextList();
@@ -54,50 +57,86 @@ public class GCSContextRepository implements ContextRepository {
 	}
 
 	private Optional<String> persistContextWithId(String contextId, Object ldContext) {
+
+		if (blobExists(contextId)) {
+			log.warn("Context with id {} already exists.", contextId);
+			throw new ContextAlreadyExistsException(String.format("The context %s already exists.", contextId), contextId);
+		}
 		BlobInfo blobInfo = BlobInfo.newBuilder(getBlobId(contextId)).setContentType("text/plain").build();
 		try {
 			storage.create(blobInfo, objectMapper.writeValueAsBytes(ldContext));
 		} catch (JsonProcessingException e) {
 			throw new CouldNotCreateContextException("Was not able to create the context.", e);
 		} catch (StorageException e) {
-			//TODO: Handle all of them
+			throw new GCSAccessException(String.format("Was not able to access bucket %s", getBlobId(contextId)), e);
 		}
 		return Optional.of(contextId);
 	}
 
 	@Override
 	public Optional<String> createContextWithId(String id, Object ldContext) {
-		if (getContext(id).isPresent()) {
-			log.warn("Context with id {} already exists.", id);
-			return Optional.empty();
-		}
 		return persistContextWithId(id, ldContext);
 	}
 
 	@Override
 	public void deleteContext(String id) {
-		storage.delete(getBlobId(id));
+		if(!blobExists(id)) {
+			throw new NoSuchContextException(String.format("Context %s does not exist.", id));
+		}
+		try {
+			storage.delete(getBlobId(id));
+		} catch (StorageException e) {
+			throw new GCSAccessException(String.format("Was not able to access bucket %s", getBlobId(id)), e);
+		}
 	}
 
 	@Override
 	public Optional<Object> getContext(String id) {
-		BlobId blobId = getBlobId(id);
-		byte[] content = storage.readAllBytes(blobId);
+		byte[] content = getBytesFromBlob(id);
 		String contextString = new String(content, UTF_8);
 		try {
 			return Optional.of(objectMapper.readValue(contextString, Object.class));
 		} catch (JsonProcessingException e) {
-			throw new FileNotReadableException(String.format("Was not able to read file for context %s from bucket %s.", id, gcsProperties.getBucketName()), e);
+			throw new FileNotReadableException(String.format("Was not able to read file for context %s from bucket %s.", id, gcsProperties.getBucketName()), e, id);
+		} catch (StorageException e) {
+			throw new GCSAccessException(String.format("Was not able to access bucket %s", getBlobId(id)), e);
+		}
+	}
+
+	private boolean blobExists(String id) {
+		try {
+			getBytesFromBlob(id);
+			return true;
+		}catch (NoSuchContextException e) {
+			return false;
+		}
+	}
+
+	private byte[] getBytesFromBlob(String id) {
+		BlobId blobId = getBlobId(id);
+		try {
+			byte[] content = storage.readAllBytes(blobId);
+			return content;
+		} catch (StorageException e) {
+			if (e.getCode() == 404) {
+				throw new NoSuchContextException(String.format("Context %s does not exist.", id));
+			} else {
+				throw new GCSAccessException(String.format("Was not able to access bucket %s", getBlobId(id)), e);
+			}
 		}
 	}
 
 	@Override
 	public List<String> getContextList() {
 		List<String> contextList = new ArrayList<>();
-		for (Blob contextBlob : storage.list(gcsProperties.getBucketName()).iterateAll()) {
-			contextList.add(contextBlob.getName());
+		try {
+			for (Blob contextBlob : storage.list(gcsProperties.getBucketName()).iterateAll()) {
+				contextList.add(contextBlob.getName());
+			}
+			return contextList;
+		} catch (StorageException e) {
+			throw new GCSAccessException(String.format("Was not able to access bucket %s", gcsProperties.getBucketName()), e);
 		}
-		return contextList;
 	}
 
 	private BlobId getBlobId(String id) {

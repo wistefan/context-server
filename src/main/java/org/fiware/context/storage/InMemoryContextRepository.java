@@ -4,12 +4,11 @@ import io.micronaut.context.annotation.Requires;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.fiware.context.exception.NoSuchContextException;
+import org.fiware.context.exception.ContextAlreadyExistsException;
 
 import javax.inject.Singleton;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -32,7 +31,7 @@ public class InMemoryContextRepository implements ContextRepository {
 	public Optional<String> createContextWithId(String id, Object ldContext) {
 		if (contextMap.containsKey(id)) {
 			log.warn("Context with id {} already exists.", id);
-			return Optional.empty();
+			throw new ContextAlreadyExistsException(String.format("The context %s already exists.", id), id);
 		}
 		contextMap.put(id, ldContext);
 		return Optional.of(id);

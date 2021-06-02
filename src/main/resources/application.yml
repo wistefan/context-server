@@ -28,7 +28,7 @@ gcs:
   enabled: false
 
 memory:
-  enabled: true
+  enabled: false
 
 ftp:
   enabled: false

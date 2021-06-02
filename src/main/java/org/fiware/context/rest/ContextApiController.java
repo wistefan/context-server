@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.micronaut.http.HttpHeaders;
 import io.micronaut.http.HttpResponse;
+import io.micronaut.http.HttpStatus;
 import io.micronaut.http.annotation.Controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +15,7 @@ import org.fiware.context.configuration.GeneralProperties;
 import org.fiware.context.exception.ContextValidationException;
 import org.fiware.context.exception.CouldNotCreateContextException;
 import org.fiware.context.exception.CouldNotCreateContextURLException;
+import org.fiware.context.exception.NoSuchContextException;
 import org.fiware.context.model.ContextListVO;
 import org.fiware.context.storage.ContextRepository;
 
@@ -44,7 +46,7 @@ public class ContextApiController implements ContextServerApi {
 		URL contextURL = id
 				.map(this::getContextUrl)
 				.orElseThrow(() -> new CouldNotCreateContextException("Was not able to create the requested context."));
-		return HttpResponse.created(contextURL);
+		return HttpResponse.status(HttpStatus.CREATED).header(HttpHeaders.LOCATION, contextURL.toString());
 	}
 
 	@Override
@@ -59,7 +61,7 @@ public class ContextApiController implements ContextServerApi {
 			return HttpResponse.ok(optionalContext.get())
 					.header(HttpHeaders.CACHE_CONTROL, String.format(CACHE_CONTROL_HEADER_TEMPLATE, generalProperties.getMaxAge()));
 		} else {
-			return HttpResponse.notFound();
+			throw new NoSuchContextException("Requested context was not available.");
 		}
 	}
 
@@ -77,7 +79,7 @@ public class ContextApiController implements ContextServerApi {
 		URL contextURL = id
 				.map(this::getContextUrl)
 				.orElseThrow(() -> new CouldNotCreateContextException("Was not able to create the requested context."));
-		return HttpResponse.created(contextURL);
+		return HttpResponse.status(HttpStatus.CREATED).header(HttpHeaders.LOCATION, contextURL.toString());
 	}
 
 	private void validateContext(Object ldContext) {
@@ -85,7 +87,7 @@ public class ContextApiController implements ContextServerApi {
 			ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(objectMapper.writeValueAsBytes(ldContext));
 			JsonDocument.of(byteArrayInputStream);
 		} catch (JsonProcessingException | JsonLdError e) {
-		 	throw new ContextValidationException("The provided context is not valid.", e);
+			throw new ContextValidationException("The provided context is not valid.", e);
 		}
 	}
 

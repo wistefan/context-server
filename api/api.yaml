@@ -70,12 +70,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/LdContext'
-        '400':
-          description: Bad request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProblemDetails'
         '404':
           description: No such context exists in the server.
           content:
@@ -126,12 +120,6 @@ paths:
       responses:
         '204':
           description: The requested context was deleted.
-        '400':
-          description: Bad request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProblemDetails'
         '404':
           description: No such context exists in the server.
           content:

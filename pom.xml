@@ -28,7 +28,6 @@
         </license>
     </licenses>
 
-
     <properties>
         <jdk.version>11</jdk.version>
         <release.version>11</release.version>
@@ -39,8 +38,8 @@
         <!-- project info -->
         <project.author.name>Stefan Wiedemann</project.author.name>
         <project.author.email>stefan.wiedemann@fiware.org</project.author.email>
-        <project.description>Mintaka provides an implementation of the NGSI-LD temporal API, based on Orion-LDs temporal api</project.description>
-        <project.url>https://github.com/FIWARE/mintaka</project.url>
+        <project.description>The Context Server provides capabilities to serve and manage  NGSI-LD contexts.</project.description>
+        <project.url>https://github.com/wistefan/context-server</project.url>
         <project.license.name>GNU Affero General Public License v3.0</project.license.name>
         <project.license.identifier>AGPL-3.0-only</project.license.identifier>
         <project.license.url>https://www.gnu.org/licenses/agpl.txt</project.license.url>
@@ -238,6 +237,12 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.8.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>com.google.code.findbugs</groupId>
             <artifactId>annotations</artifactId>
             <version>${version.com.google.code.findbugs.annotations}</version>
@@ -251,6 +256,12 @@
                 <filtering>true</filtering>
             </resource>
         </resources>
+        <testResources>
+            <testResource>
+                <directory>src/test/resources</directory>
+                <filtering>true</filtering>
+            </testResource>
+        </testResources>
         <plugins>
             <!-- generate sources from openapi spec -->
             <plugin>

@@ -10,11 +10,13 @@ import org.fiware.context.exception.CouldNotDeleteException;
 import org.fiware.context.exception.FileNotReadableException;
 import org.fiware.context.exception.FolderNotReadableException;
 import org.fiware.context.exception.NoSuchContextException;
+import org.fiware.context.exception.ContextAlreadyExistsException;
 
 import javax.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
@@ -27,7 +29,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class LocalDiscContextRepository implements ContextRepository {
 
-	private static final String CONTEXT_FILENAME_TEMPLATE = "%s/%s.json";
+	private static final String CONTEXT_FILENAME_TEMPLATE = "%s/%s";
 
 	private final LocalDiscProperties localDiscProperties;
 	private final ObjectMapper objectMapper;
@@ -36,20 +38,6 @@ public class LocalDiscContextRepository implements ContextRepository {
 	public Optional<String> createContext(Object ldContext) {
 		String contextId = UUID.randomUUID().toString();
 		return storeContextById(contextId, ldContext);
-	}
-
-	private Optional<String> storeContextById(String contextId, Object ldContext) {
-		Path filePath = getFilePath(contextId);
-		if (Files.exists(filePath)) {
-			log.warn("Context with id {} already exists.", contextId);
-			return Optional.empty();
-		}
-		try {
-			objectMapper.writeValue(new File(filePath.toUri()), ldContext);
-		} catch (IOException e) {
-			throw new CouldNotCreateContextException("Was not able to create the context.", e);
-		}
-		return Optional.of(contextId);
 	}
 
 	@Override
@@ -65,7 +53,7 @@ public class LocalDiscContextRepository implements ContextRepository {
 			try {
 				Files.delete(filePath);
 			} catch (IOException e) {
-				throw new CouldNotDeleteException(String.format("Was not able to delete file for context %s", id), e);
+				throw new CouldNotDeleteException(String.format("Was not able to delete file for context %s", id), e, id);
 			}
 		} else {
 			throw new NoSuchContextException(String.format("Context with id %s does not exist.", id));
@@ -77,8 +65,10 @@ public class LocalDiscContextRepository implements ContextRepository {
 		try {
 			String context = Files.readString(getFilePath(id));
 			return Optional.of(objectMapper.readValue(context, Object.class));
+		} catch (NoSuchFileException e) {
+			return Optional.empty();
 		} catch (IOException e) {
-			throw new FileNotReadableException(String.format("Was not able to read file for context %s", id), e);
+			throw new FileNotReadableException(String.format("Was not able to read file for context %s", id), e, id);
 		}
 	}
 
@@ -88,11 +78,24 @@ public class LocalDiscContextRepository implements ContextRepository {
 			return Files.list(Path.of(localDiscProperties.getContextFolder()))
 					.map(Path::getFileName)
 					.map(Path::toString)
-					.map(filename -> filename.replace(".json", ""))
 					.collect(Collectors.toList());
 		} catch (IOException e) {
 			throw new FolderNotReadableException(String.format("Was not able to retrieve the context list from %s.", localDiscProperties.getContextFolder()), e);
 		}
+	}
+
+	private Optional<String> storeContextById(String contextId, Object ldContext) {
+		Path filePath = getFilePath(contextId);
+		if (Files.exists(filePath)) {
+			log.warn("Context with id {} already exists.", contextId);
+			throw new ContextAlreadyExistsException(String.format("The context %s already exists.", contextId), contextId);
+		}
+		try {
+			objectMapper.writeValue(new File(filePath.toUri()), ldContext);
+		} catch (IOException e) {
+			throw new CouldNotCreateContextException("Was not able to create the context.", e);
+		}
+		return Optional.of(contextId);
 	}
 
 	private Path getFilePath(String id) {

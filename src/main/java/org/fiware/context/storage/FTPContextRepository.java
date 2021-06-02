@@ -1,7 +1,7 @@
 package org.fiware.context.storage;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import io.micronaut.context.annotation.Context;
 import io.micronaut.context.annotation.Requires;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +16,7 @@ import org.fiware.context.exception.FileNotReadableException;
 import org.fiware.context.exception.FolderNotReadableException;
 import org.fiware.context.exception.NoSuchContextException;
 import org.fiware.context.exception.RepositoryCreationException;
+import org.fiware.context.exception.ContextAlreadyExistsException;
 
 import javax.annotation.PostConstruct;
 import java.io.ByteArrayInputStream;
@@ -67,11 +68,11 @@ public class FTPContextRepository implements ContextRepository {
 			throw new NoSuchContextException(String.format("No context with id %s does exist.", id));
 		}
 		try {
-			if (!ftpClient.deleteFile(getFilePath(id))) {
-				throw new CouldNotDeleteException(String.format("Was not able to delete context %s on ftp.", id));
+			if (!ftpClient.deleteFile(id)) {
+				throw new CouldNotDeleteException(String.format("Was not able to delete context %s on ftp.", id), id);
 			}
 		} catch (IOException e) {
-			throw new CouldNotDeleteException(String.format("Was not able to delete context %s on ftp.", id));
+			throw new CouldNotDeleteException(String.format("Was not able to delete context %s on ftp.", id), id);
 		}
 	}
 
@@ -82,10 +83,12 @@ public class FTPContextRepository implements ContextRepository {
 		}
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 		try {
-			ftpClient.retrieveFile(getFilePath(id), outputStream);
+			ftpClient.retrieveFile(id, outputStream);
 			return Optional.of(objectMapper.readValue(outputStream.toByteArray(), Object.class));
+		} catch (MismatchedInputException e) {
+			return Optional.empty();
 		} catch (IOException e) {
-			throw new FileNotReadableException(String.format("Was not able to read context %s from ftp: %s.", id, ftpProperties), e);
+			throw new FileNotReadableException(String.format("Was not able to read context %s from ftp: %s.", id, ftpProperties), e, id);
 		}
 	}
 
@@ -95,27 +98,26 @@ public class FTPContextRepository implements ContextRepository {
 			ftpClient = connectToFTPServer();
 		}
 		try {
-			return Arrays.stream(ftpClient.listFiles(ftpProperties.getContextFolder())).map(FTPFile::getName).collect(Collectors.toList());
+			return Arrays.stream(ftpClient.listFiles()).map(FTPFile::getName).collect(Collectors.toList());
 		} catch (IOException e) {
 			throw new FolderNotReadableException(String.format("Was not able to read the remote folder %s.", ftpProperties.getContextFolder()), e);
 		}
 	}
 
 	private Optional<String> persistContextById(String contextId, Object ldContext) {
+		if (getContext(contextId).isPresent()) {
+			throw new ContextAlreadyExistsException(String.format("The context %s already exists.", contextId), contextId);
+		}
 		if (!ftpClient.isConnected()) {
 			ftpClient = connectToFTPServer();
 		}
 		try {
 			InputStream inputStream = new ByteArrayInputStream(objectMapper.writeValueAsBytes(ldContext));
-			ftpClient.storeFile(getFilePath(contextId), inputStream);
+			ftpClient.storeFile(contextId, inputStream);
 			return Optional.of(contextId);
 		} catch (IOException e) {
 			throw new CouldNotCreateContextException("Was not able to persist the context to ftp.", e);
 		}
-	}
-
-	private String getFilePath(String contextId) {
-		return String.format(FILE_PATH_TEMPLATE, ftpProperties.getContextFolder(), contextId);
 	}
 
 	private FTPClient connectToFTPServer() {
@@ -126,8 +128,10 @@ public class FTPContextRepository implements ContextRepository {
 			if (ftpProperties.isSecured()) {
 				ftpClient.login(ftpProperties.getUsername(), ftpProperties.getPassword());
 			}
-			// if no exception is thrown, everything should be fine
-			ftpClient.getStatus(ftpProperties.getContextFolder());
+			if (ftpClient.getStatus(ftpProperties.getContextFolder()) == null) {
+				throw new FTPServerNotAvailableException(String.format("Was not able to connect to ftp with configuration: %s", ftpProperties));
+			}
+			ftpClient.changeWorkingDirectory(ftpProperties.getContextFolder());
 			return ftpClient;
 		} catch (IOException e) {
 			throw new FTPServerNotAvailableException(String.format("Was not able to connect to ftp with configuration: %s", ftpProperties), e);
