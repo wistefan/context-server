@@ -17,8 +17,14 @@ import org.testcontainers.containers.GenericContainer;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.HashMap;
 import java.util.Map;
+
+
+import static org.awaitility.Awaitility.*;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -38,11 +44,12 @@ public class ContextApiControllerGCSTest extends AbstractContextApiControllerTes
 	public static void beforeAll() {
 
 		GCS_CONTAINER.start();
-		try {
-			Thread.sleep(2000);
-		} catch (InterruptedException e) {
-			// continue, should only give the container a little time to start
-		}
+
+		await().atMost(Duration.of(10, ChronoUnit.SECONDS)).until(
+				() -> StorageOptions.newBuilder()
+						.setHost(String.format("http://%s:%s", GCS_CONTAINER.getHost(), GCS_CONTAINER.getMappedPort(4443)))
+						.build()
+						.getService() != null);
 		storage = StorageOptions.newBuilder()
 				.setHost(String.format("http://%s:%s", GCS_CONTAINER.getHost(), GCS_CONTAINER.getMappedPort(4443)))
 				.build()

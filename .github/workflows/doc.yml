@@ -3,7 +3,7 @@ name: Publish JavaDoc
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   doc:
