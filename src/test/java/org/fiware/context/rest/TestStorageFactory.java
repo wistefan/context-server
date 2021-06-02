@@ -18,6 +18,7 @@ public class TestStorageFactory {
 	public Storage getLocalStorage(@Property(name = "gcs.host") String host, @Property(name = "gcs.port") String port) {
 		return StorageOptions.newBuilder()
 				.setHost(String.format("http://%s:%s", host, port))
+				.setProjectId("local")
 				.build()
 				.getService();
 	}

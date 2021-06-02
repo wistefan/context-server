@@ -48,10 +48,12 @@ public class ContextApiControllerGCSTest extends AbstractContextApiControllerTes
 		await().atMost(Duration.of(10, ChronoUnit.SECONDS)).until(
 				() -> StorageOptions.newBuilder()
 						.setHost(String.format("http://%s:%s", GCS_CONTAINER.getHost(), GCS_CONTAINER.getMappedPort(4443)))
+						.setProjectId("local")
 						.build()
 						.getService() != null);
 		storage = StorageOptions.newBuilder()
 				.setHost(String.format("http://%s:%s", GCS_CONTAINER.getHost(), GCS_CONTAINER.getMappedPort(4443)))
+				.setProjectId("local")
 				.build()
 				.getService();
 		storage.create(BucketInfo.of(LOCAL_BUCKET));
