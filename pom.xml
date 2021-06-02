@@ -520,7 +520,8 @@
                 <configuration>
                     <!-- exclude generated code -->
                     <excludes>
-                        <exclude>org/fiware/ngsi/**/*</exclude>
+                        <exclude>org/fiware/context/api/**/*</exclude>
+                        <exclude>org/fiware/context/model/**/*</exclude>
                     </excludes>
                 </configuration>
                 <executions>
