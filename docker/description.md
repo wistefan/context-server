@@ -6,7 +6,6 @@
 [![NGSI-LD badge](https://img.shields.io/badge/NGSI-LD-red.svg)](https://www.etsi.org/deliver/etsi_gs/CIM/001_099/009/01.04.01_60/gs_cim009v010401p.pdf)
 [![Coverage Status](https://coveralls.io/repos/github/wistefan/context-server/badge.svg)](https://coveralls.io/github/wistefan/context-server)
 [![Test](https://github.com/wistefan/context-server/actions/workflows/test.yml/badge.svg)](https://github.com/wistefan/context-server/actions/workflows/test.yml)
-[![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/4751/badge)](https://bestpractices.coreinfrastructure.org/projects/4751)
 [![Known Vulnerabilities](https://snyk.io/test/github/wistefan/context-server/badge.svg)](https://snyk.io/test/github/wistefan/context-server)
 
 The Context Server provides capabilities to serve and manage [NGSI-LD Contexts](https://www.etsi.org/deliver/etsi_gs/CIM/001_099/009/01.04.01_60/gs_cim009v010401p.pdf).
