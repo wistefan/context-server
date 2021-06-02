@@ -1,0 +1,8 @@
+org.fiware.context
+org.fiware.context.api
+org.fiware.context.configuration
+org.fiware.context.exception
+org.fiware.context.exception.handling
+org.fiware.context.model
+org.fiware.context.rest
+org.fiware.context.storage

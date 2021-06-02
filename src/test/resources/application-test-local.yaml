@@ -1,3 +1,0 @@
-local:
-  enabled: true
-  contextFolder: ${project.build.directory}/text-contexts
