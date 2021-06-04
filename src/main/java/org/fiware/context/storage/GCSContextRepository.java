@@ -80,7 +80,7 @@ public class GCSContextRepository implements ContextRepository {
 
 	@Override
 	public void deleteContext(String id) {
-		if(!blobExists(id)) {
+		if (!blobExists(id)) {
 			throw new NoSuchContextException(String.format("Context %s does not exist.", id));
 		}
 		try {
@@ -107,7 +107,7 @@ public class GCSContextRepository implements ContextRepository {
 		try {
 			getBytesFromBlob(id);
 			return true;
-		}catch (NoSuchContextException e) {
+		} catch (NoSuchContextException e) {
 			return false;
 		}
 	}

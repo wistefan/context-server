@@ -19,14 +19,11 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
 import java.util.HashMap;
 import java.util.Map;
 
-
-import static org.awaitility.Awaitility.*;
-
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.awaitility.Awaitility.await;
 
 public class ContextApiControllerGCSTest extends AbstractContextApiControllerTest {
 
@@ -63,6 +60,7 @@ public class ContextApiControllerGCSTest extends AbstractContextApiControllerTes
 				Map.of(
 						"gcs.bucketName", LOCAL_BUCKET,
 						"gcs.enabled", true,
+						"gcs.test", true,
 						"gcs.host", GCS_CONTAINER.getHost(),
 						"gcs.port", GCS_CONTAINER.getMappedPort(4443)
 				)));

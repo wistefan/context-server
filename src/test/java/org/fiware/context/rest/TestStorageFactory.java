@@ -10,7 +10,7 @@ import io.micronaut.context.annotation.Requires;
 import org.fiware.context.storage.GCSStorageFactory;
 
 @Factory
-@Requires(property = "gcs.enabled", value = "true")
+@Requires(property = "gcs.test", value = "true")
 public class TestStorageFactory {
 
 	@Bean
