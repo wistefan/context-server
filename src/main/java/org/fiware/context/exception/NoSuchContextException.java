@@ -6,7 +6,4 @@ public class NoSuchContextException extends RuntimeException {
 		super(message);
 	}
 
-	public NoSuchContextException(String message, Throwable cause) {
-		super(message, cause);
-	}
 }

@@ -12,8 +12,4 @@ public class ContextAlreadyExistsException extends RuntimeException {
 		this.id = id;
 	}
 
-	public ContextAlreadyExistsException(String message, Throwable cause, String id) {
-		super(message, cause);
-		this.id = id;
-	}
 }
