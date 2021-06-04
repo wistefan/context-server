@@ -3,6 +3,7 @@ package org.fiware.context.rest;
 
 import com.google.api.gax.paging.Page;
 import com.google.cloud.storage.Blob;
+import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageException;
@@ -20,6 +21,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
+import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
 import javax.inject.Inject;
 
@@ -101,6 +103,16 @@ public class ContextApiControllerGCSErrorTest {
 		when(storage.list(anyString())).thenThrow(new StorageException(403, "Not accessible"));
 
 		assert500(() -> testClient.getContextList());
+	}
+
+	@DisplayName("Context deletion should fail with inaccessible bucket")
+	@Test
+	public void getContextDeleteFailOnBucket() throws Throwable {
+
+		when(storage.readAllBytes(any())).thenReturn(new ObjectMapper().writeValueAsBytes("{\"test\":\"t\"}"));
+		when(storage.delete(any(BlobId.class))).thenThrow(new StorageException(403, "Not accessible"));
+
+		assert500(() -> testClient.deleteContextById("context"));
 	}
 
 	private void assert500(Executable executable) throws Throwable {
