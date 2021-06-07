@@ -5,17 +5,16 @@ import io.micronaut.context.annotation.Requires;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.fiware.context.configuration.LocalDiscProperties;
+import org.fiware.context.exception.ContextAlreadyExistsException;
 import org.fiware.context.exception.CouldNotCreateContextException;
 import org.fiware.context.exception.CouldNotDeleteException;
 import org.fiware.context.exception.FileNotReadableException;
 import org.fiware.context.exception.FolderNotReadableException;
 import org.fiware.context.exception.NoSuchContextException;
-import org.fiware.context.exception.ContextAlreadyExistsException;
 
 import javax.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.List;
@@ -33,6 +32,7 @@ public class LocalDiscContextRepository implements ContextRepository {
 
 	private final LocalDiscProperties localDiscProperties;
 	private final ObjectMapper objectMapper;
+	private final LocalDiscPersistence localDiscPersistence;
 
 	@Override
 	public Optional<String> createContext(Object ldContext) {
@@ -42,16 +42,15 @@ public class LocalDiscContextRepository implements ContextRepository {
 
 	@Override
 	public Optional<String> createContextWithId(String id, Object ldContext) {
-
 		return storeContextById(id, ldContext);
 	}
 
 	@Override
 	public void deleteContext(String id) {
 		Path filePath = getFilePath(id);
-		if (Files.exists(filePath)) {
+		if (localDiscPersistence.exists(filePath)) {
 			try {
-				Files.delete(filePath);
+				localDiscPersistence.deleteFile(filePath);
 			} catch (IOException e) {
 				throw new CouldNotDeleteException(String.format("Was not able to delete file for context %s", id), e, id);
 			}
@@ -63,7 +62,7 @@ public class LocalDiscContextRepository implements ContextRepository {
 	@Override
 	public Optional<Object> getContext(String id) {
 		try {
-			String context = Files.readString(getFilePath(id));
+			String context = localDiscPersistence.readString(getFilePath(id));
 			return Optional.of(objectMapper.readValue(context, Object.class));
 		} catch (NoSuchFileException e) {
 			return Optional.empty();
@@ -75,7 +74,7 @@ public class LocalDiscContextRepository implements ContextRepository {
 	@Override
 	public List<String> getContextList() {
 		try {
-			return Files.list(Path.of(localDiscProperties.getContextFolder()))
+			return localDiscPersistence.list(Path.of(localDiscProperties.getContextFolder()))
 					.map(Path::getFileName)
 					.map(Path::toString)
 					.collect(Collectors.toList());
@@ -86,7 +85,7 @@ public class LocalDiscContextRepository implements ContextRepository {
 
 	private Optional<String> storeContextById(String contextId, Object ldContext) {
 		Path filePath = getFilePath(contextId);
-		if (Files.exists(filePath)) {
+		if (localDiscPersistence.exists(filePath)) {
 			log.warn("Context with id {} already exists.", contextId);
 			throw new ContextAlreadyExistsException(String.format("The context %s already exists.", contextId), contextId);
 		}
