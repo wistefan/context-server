@@ -7,10 +7,13 @@ import io.micronaut.http.annotation.Produces;
 import io.micronaut.http.server.exceptions.ExceptionHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.fiware.context.exception.FTPServerNotAvailableException;
-import org.fiware.context.exception.FolderNotReadableException;
 
 import javax.inject.Singleton;
 
+/**
+ *
+ * Handle exceptions to be thrown in case the ftp is not available.
+ */
 @Produces
 @Singleton
 @Requires(classes = {FTPServerNotAvailableException.class, ExceptionHandler.class})

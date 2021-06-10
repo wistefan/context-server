@@ -71,6 +71,8 @@ and provided with the environment variable ```GOOGLE_APPLICATION_CREDENTIALS``` 
 
 ### FTP
 
+> :warning This is currently considered to be experimental and not properly tested, yet.
+
 Enable: ```ftp.enabled: true```
 
 Properties:

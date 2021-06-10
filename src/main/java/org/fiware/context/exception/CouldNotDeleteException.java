@@ -2,6 +2,9 @@ package org.fiware.context.exception;
 
 import lombok.Getter;
 
+/**
+ * Exception to be thrown in case a context could not have been deleted.
+ */
 @Getter
 public class CouldNotDeleteException extends RuntimeException {
 

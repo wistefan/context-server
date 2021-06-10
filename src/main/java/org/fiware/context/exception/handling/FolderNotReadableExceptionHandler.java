@@ -10,6 +10,9 @@ import org.fiware.context.exception.FolderNotReadableException;
 
 import javax.inject.Singleton;
 
+/**
+ * Handle exceptions to be thrown in case the context folder is not readable.
+ */
 @Produces
 @Singleton
 @Requires(classes = {FolderNotReadableException.class, ExceptionHandler.class})

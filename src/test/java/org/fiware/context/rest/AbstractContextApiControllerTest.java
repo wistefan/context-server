@@ -56,8 +56,9 @@ abstract class AbstractContextApiControllerTest implements ContextServerApiTestS
 	@Override
 	public void createContext400() throws Exception {
 		String invalidContext = "Invalid context";
+		ContextServerApiTestClient testClient = getTestClient();
 		try {
-			getTestClient().createContext(invalidContext);
+			testClient.createContext(invalidContext);
 			fail("The creation should not work for an invalid context.");
 		} catch (HttpClientResponseException e) {
 			assertEquals(HttpStatus.BAD_REQUEST, e.getStatus(), "Invalid context' should be rejected.");
@@ -78,8 +79,9 @@ abstract class AbstractContextApiControllerTest implements ContextServerApiTestS
 	@Override
 	public void createContextWithId400() throws Exception {
 		String invalidContext = "Invalid context";
+		ContextServerApiTestClient testClient = getTestClient();
 		try {
-			getTestClient().createContextWithId("invalid-context.json", invalidContext);
+			testClient.createContextWithId("invalid-context.json", invalidContext);
 			fail("The creation should not work for an invalid context.");
 		} catch (HttpClientResponseException e) {
 			assertEquals(HttpStatus.BAD_REQUEST, e.getStatus(), "Invalid context' should be rejected.");
@@ -90,8 +92,9 @@ abstract class AbstractContextApiControllerTest implements ContextServerApiTestS
 	@Override
 	public void createContextWithId409() throws Exception {
 		initiateContextMap();
+		ContextServerApiTestClient testClient = getTestClient();
 		try {
-			getTestClient().createContextWithId("core-context.json", getCoreContextObject());
+			testClient.createContextWithId("core-context.json", getCoreContextObject());
 			fail("The creation should not work for a duplicate context.");
 		} catch (HttpClientResponseException e) {
 			assertEquals(HttpStatus.CONFLICT, e.getStatus(), "The context should be reject with a conflict.");
@@ -120,7 +123,7 @@ abstract class AbstractContextApiControllerTest implements ContextServerApiTestS
 		initiateContextMap();
 		HttpResponse<Object> response = getTestClient().getContextById("core-context.json");
 		assertEquals(HttpStatus.OK, response.getStatus(), "The context should be retrieved.");
-		assertEquals(response.getHeaders().get(HttpHeaders.CACHE_CONTROL), "max-age=31536000", "The context should set the cache control header.");
+		assertEquals("max-age=31536000", response.getHeaders().get(HttpHeaders.CACHE_CONTROL), "The context should set the cache control header.");
 		assertTrue(response.getBody().isPresent(), "Context should be present in the body.");
 		assertEquals(getCoreContextObject(), response.getBody().get(), "Full core context should be returned.");
 	}

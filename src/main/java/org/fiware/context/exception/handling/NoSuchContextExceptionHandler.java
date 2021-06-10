@@ -10,6 +10,9 @@ import org.fiware.context.exception.NoSuchContextException;
 
 import javax.inject.Singleton;
 
+/**
+ * Handle exceptions to be thrown in case the requested context does not exist.
+ */
 @Produces
 @Singleton
 @Requires(classes = {NoSuchContextException.class, ExceptionHandler.class})

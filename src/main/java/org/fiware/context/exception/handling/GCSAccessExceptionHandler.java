@@ -10,6 +10,9 @@ import org.fiware.context.exception.GCSAccessException;
 
 import javax.inject.Singleton;
 
+/**
+ * Handle exceptions to be thrown in case the gcs-bucket could not have been accessed.
+ */
 @Produces
 @Singleton
 @Requires(classes = {GCSAccessException.class, ExceptionHandler.class})

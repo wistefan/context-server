@@ -1,6 +1,5 @@
 package org.fiware.context.rest;
 
-import com.apicatalog.jsonld.JsonLd;
 import com.apicatalog.jsonld.JsonLdError;
 import com.apicatalog.jsonld.document.JsonDocument;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -28,16 +27,34 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Optional;
 
+/**
+ * Rest controller for handling all context requests.
+ */
 @Slf4j
 @RequiredArgsConstructor
 @Controller
 public class ContextApiController implements ContextServerApi {
 
+	/**
+	 * Template to be used for the cache control header
+	 */
 	private static final String CACHE_CONTROL_HEADER_TEMPLATE = "max-age=%s";
+	/**
+	 * Template for the context-url to be returned.
+	 */
 	private static final String CONTEXT_URL_TEMPLATE = "%s/jsonldContexts/%s";
 
+	/**
+	 * General properties to be used.
+	 */
 	private final GeneralProperties generalProperties;
+	/**
+	 * Repository containing the contexts.
+	 */
 	private final ContextRepository contextRepository;
+	/**
+	 * ObjectMapper to be used.
+	 */
 	private final ObjectMapper objectMapper;
 
 	@Override
@@ -83,6 +100,11 @@ public class ContextApiController implements ContextServerApi {
 		return HttpResponse.status(HttpStatus.CREATED).header(HttpHeaders.LOCATION, contextURL.toString());
 	}
 
+	/**
+	 * Validate if the object is valid json.
+	 *
+	 * @param ldContext - the object to be validated
+	 */
 	private void validateContext(Object ldContext) {
 		try {
 			ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(objectMapper.writeValueAsBytes(ldContext));
@@ -92,6 +114,12 @@ public class ContextApiController implements ContextServerApi {
 		}
 	}
 
+	/**
+	 * Generate a context-uri from the give id
+	 *
+	 * @param id - id to generate the uri for
+	 * @return the generated URI
+	 */
 	private URI getContextURI(String id) {
 		try {
 			return new URI(String.format(CONTEXT_URL_TEMPLATE, generalProperties.getBaseUrl(), id));
@@ -100,6 +128,12 @@ public class ContextApiController implements ContextServerApi {
 		}
 	}
 
+	/**
+	 * Generate a context-url from the give id
+	 *
+	 * @param id - id to generate the ul for
+	 * @return the generated URl
+	 */
 	private URL getContextUrl(String id) {
 		try {
 			return new URL(String.format(CONTEXT_URL_TEMPLATE, generalProperties.getBaseUrl(), id));

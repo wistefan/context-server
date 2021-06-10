@@ -42,7 +42,7 @@ class GCSContextRepositoryTest {
 
 	@DisplayName("Check successful initialization")
 	@Test
-	public void init() throws Exception {
+	void init() throws Exception {
 		Page<Blob> blobPage = mock(Page.class);
 		Iterable<Blob> iterableBlob = List.of();
 		when(blobPage.iterateAll()).thenReturn(iterableBlob);
@@ -53,7 +53,7 @@ class GCSContextRepositoryTest {
 
 	@DisplayName("Check initialization fails when bucket not accessible.")
 	@Test
-	public void initFail() throws Exception {
+	void initFail() throws Exception {
 		when(storage.list(anyString())).thenThrow(new StorageException(123, "Not accessible"));
 
 		assertThrows(RepositoryCreationException.class, () -> gcsContextRepository.init(), "The repository should not initialize successfully.");

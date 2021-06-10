@@ -12,6 +12,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+/**
+ * Repository implementation using an in-memory store as a backend.
+ */
 @Slf4j
 @Singleton
 @Requires(property = "memory.enabled", value = "true")
