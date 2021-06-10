@@ -22,6 +22,9 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+/**
+ * Repository implementation using the local disc as a backend.
+ */
 @Slf4j
 @Singleton
 @Requires(property = "local.enabled", value = "true")
@@ -83,6 +86,13 @@ public class LocalDiscContextRepository implements ContextRepository {
 		}
 	}
 
+	/**
+	 * Persist the context object with the given id.
+	 *
+	 * @param contextId - id to persist the context at.
+	 * @param ldContext -  the context to be persisted
+	 * @return the id of the context, in case it was created.
+	 */
 	private Optional<String> storeContextById(String contextId, Object ldContext) {
 		Path filePath = getFilePath(contextId);
 		if (localDiscPersistence.exists(filePath)) {
@@ -97,6 +107,12 @@ public class LocalDiscContextRepository implements ContextRepository {
 		return Optional.of(contextId);
 	}
 
+	/**
+	 * Get the path of the context with the given id on the local disc
+	 *
+	 * @param id - id of the context to be retrieved
+	 * @return the local path
+	 */
 	private Path getFilePath(String id) {
 		return Path.of(String.format(CONTEXT_FILENAME_TEMPLATE, localDiscProperties.getContextFolder(), id));
 	}

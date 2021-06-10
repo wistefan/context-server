@@ -7,18 +7,17 @@ import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageException;
-import com.google.cloud.storage.StorageOptions;
 import io.micronaut.context.annotation.Context;
 import io.micronaut.context.annotation.Requires;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.fiware.context.configuration.GCSProperties;
+import org.fiware.context.exception.ContextAlreadyExistsException;
 import org.fiware.context.exception.CouldNotCreateContextException;
 import org.fiware.context.exception.FileNotReadableException;
 import org.fiware.context.exception.GCSAccessException;
 import org.fiware.context.exception.NoSuchContextException;
 import org.fiware.context.exception.RepositoryCreationException;
-import org.fiware.context.exception.ContextAlreadyExistsException;
 
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;
@@ -28,6 +27,9 @@ import java.util.UUID;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
+/**
+ * Repository implementation using an gcs-server as a backend.
+ */
 @Slf4j
 // context scoped, to enable startup connectivity check
 @Context
@@ -35,10 +37,16 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 @RequiredArgsConstructor
 public class GCSContextRepository implements ContextRepository {
 
+	public static final String BUCKET_UNACCESSIBLE_MESSAGE_TEMPLATE = "Was not able to access bucket %s";
 	private final ObjectMapper objectMapper;
 	private final GCSProperties gcsProperties;
 	private final Storage storage;
 
+	/**
+	 * Check if the gcs-bucket is available on startup
+	 *
+	 * @throws RepositoryCreationException - exception to be thrown in case the bucket was not available and therefore the repository cannot be created.
+	 */
 	@PostConstruct
 	public void init() throws RepositoryCreationException {
 		try {
@@ -56,6 +64,13 @@ public class GCSContextRepository implements ContextRepository {
 		return persistContextWithId(contextId, ldContext);
 	}
 
+	/**
+	 * Persist the context object with the given id.
+	 *
+	 * @param contextId - id to persist the context at.
+	 * @param ldContext -  the context to be persisted
+	 * @return the id of the context, in case it was created.
+	 */
 	private Optional<String> persistContextWithId(String contextId, Object ldContext) {
 
 		if (blobExists(contextId)) {
@@ -68,7 +83,7 @@ public class GCSContextRepository implements ContextRepository {
 		} catch (JsonProcessingException e) {
 			throw new CouldNotCreateContextException("Was not able to create the context.", e);
 		} catch (StorageException e) {
-			throw new GCSAccessException(String.format("Was not able to access bucket %s", getBlobId(contextId)), e);
+			throw new GCSAccessException(String.format(BUCKET_UNACCESSIBLE_MESSAGE_TEMPLATE, getBlobId(contextId)), e);
 		}
 		return Optional.of(contextId);
 	}
@@ -86,7 +101,7 @@ public class GCSContextRepository implements ContextRepository {
 		try {
 			storage.delete(getBlobId(id));
 		} catch (StorageException e) {
-			throw new GCSAccessException(String.format("Was not able to access bucket %s", getBlobId(id)), e);
+			throw new GCSAccessException(String.format(BUCKET_UNACCESSIBLE_MESSAGE_TEMPLATE, getBlobId(id)), e);
 		}
 	}
 
@@ -103,6 +118,12 @@ public class GCSContextRepository implements ContextRepository {
 		}
 	}
 
+	/**
+	 * Check if a blob for the given context-id exists.
+	 *
+	 * @param id - id to check the if a blob exists
+	 * @return true if the blob exists
+	 */
 	private boolean blobExists(String id) {
 		try {
 			getBytesFromBlob(id);
@@ -112,6 +133,12 @@ public class GCSContextRepository implements ContextRepository {
 		}
 	}
 
+	/**
+	 * Get the bytes from the blob with the given context id
+	 *
+	 * @param id - id of the context to be retrieved
+	 * @return bytes from the blob
+	 */
 	private byte[] getBytesFromBlob(String id) {
 		BlobId blobId = getBlobId(id);
 		try {
@@ -139,6 +166,12 @@ public class GCSContextRepository implements ContextRepository {
 		}
 	}
 
+	/**
+	 * Create a blob id from the given context id
+	 *
+	 * @param id - id to create the blob id for
+	 * @return the blob-id
+	 */
 	private BlobId getBlobId(String id) {
 		return BlobId.of(gcsProperties.getBucketName(), id);
 	}

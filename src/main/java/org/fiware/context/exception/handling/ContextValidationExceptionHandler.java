@@ -10,6 +10,9 @@ import org.fiware.context.exception.ContextValidationException;
 
 import javax.inject.Singleton;
 
+/**
+ * Handle exceptions to be thrown if a context was received that is invalid.
+ */
 @Produces
 @Singleton
 @Requires(classes = {ContextValidationException.class, ExceptionHandler.class})

@@ -10,6 +10,9 @@ import org.fiware.context.exception.ContextAlreadyExistsException;
 
 import javax.inject.Singleton;
 
+/**
+ * Handle exceptions to be thrown when a context was tried to be created that already existed.
+ */
 @Produces
 @Singleton
 @Requires(classes = {ContextAlreadyExistsException.class, ExceptionHandler.class})

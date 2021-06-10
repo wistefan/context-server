@@ -10,6 +10,9 @@ import org.fiware.context.exception.CouldNotCreateContextException;
 
 import javax.inject.Singleton;
 
+/**
+ * Handle exceptions to be thrown in case a context could not have been created.
+ */
 @Produces
 @Singleton
 @Requires(classes = {CouldNotCreateContextException.class, ExceptionHandler.class})

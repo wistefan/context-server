@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import io.micronaut.context.annotation.Context;
 import io.micronaut.context.annotation.Requires;
+import jdk.jfr.Experimental;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.net.ftp.FTPClient;
@@ -29,6 +30,11 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+/**
+ * Repository implementation using an ftp-server as a backend.
+ * Currently considered to be experimental.
+ */
+@Experimental
 @Slf4j
 // context scoped, to enable startup connectivity check
 @Context
@@ -41,6 +47,11 @@ public class FTPContextRepository implements ContextRepository {
 	private final ObjectMapper objectMapper;
 	private FTPClient ftpClient;
 
+	/**
+	 * Check if the ftp is available on startup
+	 *
+	 * @throws RepositoryCreationException - exception to be thrown in case the ftp was not available and therefore the repository cannot be created.
+	 */
 	@PostConstruct
 	public void init() throws RepositoryCreationException {
 		try {
@@ -104,6 +115,13 @@ public class FTPContextRepository implements ContextRepository {
 		}
 	}
 
+	/**
+	 * Persist the context object with the given id.
+	 *
+	 * @param contextId - id to persist the context at.
+	 * @param ldContext -  the context to be persisted
+	 * @return the id of the context, in case it was created.
+	 */
 	private Optional<String> persistContextById(String contextId, Object ldContext) {
 		if (getContext(contextId).isPresent()) {
 			throw new ContextAlreadyExistsException(String.format("The context %s already exists.", contextId), contextId);
@@ -120,19 +138,24 @@ public class FTPContextRepository implements ContextRepository {
 		}
 	}
 
+	/**
+	 * Connect to the ftp and return a client.
+	 *
+	 * @return the connected client
+	 */
 	private FTPClient connectToFTPServer() {
-		FTPClient ftpClient = new FTPClient();
+		FTPClient client = new FTPClient();
 		try {
-			ftpClient.connect(ftpProperties.getHostname(), ftpProperties.getPort());
+			client.connect(ftpProperties.getHostname(), ftpProperties.getPort());
 
 			if (ftpProperties.isSecured()) {
-				ftpClient.login(ftpProperties.getUsername(), ftpProperties.getPassword());
+				client.login(ftpProperties.getUsername(), ftpProperties.getPassword());
 			}
-			if (ftpClient.getStatus(ftpProperties.getContextFolder()) == null) {
+			if (client.getStatus(ftpProperties.getContextFolder()) == null) {
 				throw new FTPServerNotAvailableException(String.format("Was not able to connect to ftp with configuration: %s", ftpProperties));
 			}
-			ftpClient.changeWorkingDirectory(ftpProperties.getContextFolder());
-			return ftpClient;
+			client.changeWorkingDirectory(ftpProperties.getContextFolder());
+			return client;
 		} catch (IOException e) {
 			throw new FTPServerNotAvailableException(String.format("Was not able to connect to ftp with configuration: %s", ftpProperties), e);
 		}

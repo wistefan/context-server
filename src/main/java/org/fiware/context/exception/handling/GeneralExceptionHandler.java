@@ -5,13 +5,12 @@ import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.annotation.Produces;
 import io.micronaut.http.server.exceptions.ExceptionHandler;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.inject.Singleton;
 
 /**
- * Handler to catch all not specifically(unexpected) handled exceptions and map them NGSI compliant.
+ * Handler to catch all not specifically(unexpected) handled exceptions and map them NGSI-LD compliant.
  */
 @Produces
 @Singleton

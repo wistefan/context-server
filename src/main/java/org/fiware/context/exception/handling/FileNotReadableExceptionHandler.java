@@ -10,6 +10,9 @@ import org.fiware.context.exception.FileNotReadableException;
 
 import javax.inject.Singleton;
 
+/**
+ * Handle exceptions to be thrown in case a context-file is not readable.
+ */
 @Produces
 @Singleton
 @Requires(classes = {FileNotReadableException.class, ExceptionHandler.class})

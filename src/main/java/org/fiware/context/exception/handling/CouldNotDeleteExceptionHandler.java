@@ -6,12 +6,13 @@ import io.micronaut.http.HttpStatus;
 import io.micronaut.http.annotation.Produces;
 import io.micronaut.http.server.exceptions.ExceptionHandler;
 import lombok.extern.slf4j.Slf4j;
-import org.checkerframework.checker.units.qual.A;
-import org.fiware.context.exception.CouldNotCreateContextException;
 import org.fiware.context.exception.CouldNotDeleteException;
 
 import javax.inject.Singleton;
 
+/**
+ * Handle exceptions to be thrown in case a context could not have been deleted.
+ */
 @Produces
 @Singleton
 @Requires(classes = {CouldNotDeleteException.class, ExceptionHandler.class})
