@@ -741,11 +741,7 @@
                                         <image>docker.io/${image.repository}/${artifactId}:${image.tag}-rhel</image>
                                     </to>
                                     <from>
-                                        <image>registry.redhat.io/openjdk/openjdk-11-rhel7</image>
-                                        <auth>
-                                            <username>${rhel.username}</username>
-                                            <password>${rhel.password}</password>
-                                        </auth>
+                                        <image>registry.access.redhat.com/ubi8/openjdk-11</image>
                                     </from>
                                 </configuration>
                             </execution>
@@ -760,11 +756,7 @@
                                         <image>docker.io/${image.repository}/${artifactId}:latest-rhel</image>
                                     </to>
                                     <from>
-                                        <image>registry.redhat.io/openjdk/openjdk-11-rhel7</image>
-                                        <auth>
-                                            <username>${rhel.username}</username>
-                                            <password>${rhel.password}</password>
-                                        </auth>
+                                        <image>registry.access.redhat.com/ubi8/openjdk-11</image>
                                     </from>
                                 </configuration>
                             </execution>
