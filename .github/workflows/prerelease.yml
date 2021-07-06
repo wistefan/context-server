@@ -17,9 +17,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - run: |
-          cat pom.xml
-
       - uses: actions/setup-java@v1
         with:
           java-version: '11'
@@ -50,7 +47,7 @@ jobs:
       - name: Build image
         run: |
           mvn versions:set -DnewVersion=${{ steps.out.outputs.version }}
-          mvn clean install deploy -DskipTests -Pdocker -Dimage.tag=${{ steps.out.outputs.version }}
+          mvn clean install deploy -DskipTests -Dimage.tag=${{ steps.out.outputs.version }}
 
       - uses: "marvinpinto/action-automatic-releases@latest"
         with:
