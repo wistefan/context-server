@@ -24,6 +24,9 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/LdContext'
+          application/ld+json:
+            schema:
+              $ref: '#/components/schemas/LdContext'
       responses:
         '201':
           description: Created. Contains the resource URI of the created context
@@ -87,6 +90,9 @@ paths:
         required: true
         content:
           application/ld+json:
+            schema:
+              $ref: '#/components/schemas/LdContext'
+          application/json:
             schema:
               $ref: '#/components/schemas/LdContext'
       responses:
