@@ -21,7 +21,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/ld+json:
+          application/json:
             schema:
               $ref: '#/components/schemas/LdContext'
       responses:
