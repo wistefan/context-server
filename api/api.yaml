@@ -21,7 +21,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          application/ld+json:
             schema:
               $ref: '#/components/schemas/LdContext'
       responses:
@@ -67,7 +67,7 @@ paths:
               schema:
                 $ref: '#/components/headers/Cache-Control'
           content:
-            application/json:
+            application/ld+json:
               schema:
                 $ref: '#/components/schemas/LdContext'
         '404':
@@ -86,7 +86,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          application/ld+json:
             schema:
               $ref: '#/components/schemas/LdContext'
       responses:
