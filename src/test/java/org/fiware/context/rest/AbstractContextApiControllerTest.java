@@ -121,7 +121,7 @@ abstract class AbstractContextApiControllerTest implements ContextServerApiTestS
 	@Override
 	public void getContextById200() throws Exception {
 		initiateContextMap();
-		HttpResponse<Object> response = getTestClient().getContextById("core-context.json");
+		HttpResponse<?> response = getTestClient().getContextById("core-context.json");
 		assertEquals(HttpStatus.OK, response.getStatus(), "The context should be retrieved.");
 		assertEquals("max-age=31536000", response.getHeaders().get(HttpHeaders.CACHE_CONTROL), "The context should set the cache control header.");
 		assertTrue(response.getBody().isPresent(), "Context should be present in the body.");
@@ -131,7 +131,7 @@ abstract class AbstractContextApiControllerTest implements ContextServerApiTestS
 	@Test
 	@Override
 	public void getContextById404() throws Exception {
-		HttpResponse<Object> response = getTestClient().getContextById("core-context.json");
+		HttpResponse<?> response = getTestClient().getContextById("core-context.json");
 		assertEquals(HttpStatus.NOT_FOUND, response.getStatus(), "Requested context was not found.");
 	}
 
